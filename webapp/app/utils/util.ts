@@ -204,3 +204,34 @@ export function filterTreeSelectOption(
   const text = treeNode.props.title
   return text.toLowerCase().includes(input.toLowerCase())
 }
+
+export const loadResource = (url: string) => {
+  return new Promise((resolve, reject) => {
+    const script = document.createElement('script')
+    script.src = url
+    script.async = true
+    script.onload = resolve
+    script.onerror = reject
+    document.body.appendChild(script)
+  })
+}
+
+export const loadStyle = (url: string) => {
+  return new Promise((resolve, reject) => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet'
+    link.href = url
+    link.type = 'text/css'
+    link.onload = resolve
+    link.onerror = reject
+    document.head.appendChild(link)
+  })
+}
+
+export const loadScript = (url: string) => {
+  if (url.endsWith('.js')) {
+    loadResource(url)
+  } else if (url.endsWith('.css')) {
+    loadStyle(url)
+  }
+}

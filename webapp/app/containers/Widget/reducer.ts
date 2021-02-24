@@ -113,7 +113,7 @@ const widgetReducer = (
             ...action.payload.result,
             viewName: draft.widgets[copyWidgetIndex].viewName
           }
-         
+
         )
         draft.loading = false
         break
@@ -133,6 +133,15 @@ const widgetReducer = (
       case ActionTypes.CLEAR_CURRENT_WIDGET:
         draft.currentWidget = null
         break
+      case ActionTypes.LOAD_CUSTOM_PLUGIN_SUCCESS:
+        draft.customPlugin = action.payload.data
+        break
+      case ActionTypes.EDIT_CUSTOM_PLUGIN: {
+        const { fieldArr, key, value } = action.payload
+        const customObj = fieldArr?.reduce((pre, cur) => pre[cur], draft.customPlugin)
+        customObj[key] = value
+        break
+      }
     }
   })
 

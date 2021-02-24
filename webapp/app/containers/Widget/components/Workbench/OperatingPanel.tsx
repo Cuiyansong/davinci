@@ -4,42 +4,34 @@ import set from 'lodash/set'
 import debounce from 'lodash/debounce'
 
 import widgetlibs from '../../config'
-import { IDataRequestBody } from 'app/containers/Dashboard/types'
-import { IViewBase, IFormedViews, IView } from 'containers/View/types'
-import { ViewModelVisualTypes, ViewModelTypes } from 'containers/View/constants'
+import {IDataRequestBody} from 'app/containers/Dashboard/types'
+import {IFormedViews, IView, IViewBase} from 'containers/View/types'
+import {
+  CUSTOM_ID_LOWEST_LIMIT,
+  ViewModelTypes,
+  ViewModelVisualTypes
+} from 'containers/View/constants'
 import Dropbox, {
+  AggregatorType,
+  DragType,
   DropboxType,
   DropType,
-  AggregatorType,
-  IDataParamSource,
   IDataParamConfig,
-  DragType,
+  IDataParamSource,
   IDragItem
 } from './Dropbox'
 import {
-  IWidgetProps,
-  IChartStyles,
+  DimetionType,
   IChartInfo,
+  IChartStyles,
   IPaginationParams,
-  WidgetMode,
+  IWidgetProps,
   RenderType,
-  DimetionType
+  WidgetMode
 } from '../Widget'
-import {
-  IFieldConfig,
-  getDefaultFieldConfig,
-  FieldConfigModal
-} from '../Config/Field'
-import {
-  IFieldFormatConfig,
-  getDefaultFieldFormatConfig,
-  FormatConfigModal
-} from '../Config/Format'
-import {
-  IFieldSortConfig,
-  FieldSortTypes,
-  SortConfigModal
-} from '../Config/Sort'
+import {FieldConfigModal, getDefaultFieldConfig, IFieldConfig} from '../Config/Field'
+import {FormatConfigModal, getDefaultFieldFormatConfig, IFieldFormatConfig} from '../Config/Format'
+import {FieldSortTypes, IFieldSortConfig, SortConfigModal} from '../Config/Sort'
 import ColorSettingForm from './ColorSettingForm'
 import ActOnSettingForm from './ActOnSettingForm'
 import FilterSettingForm from './FilterSettingForm'
@@ -64,46 +56,41 @@ import GaugeSection from './ConfigSections/GaugeSection'
 import BarSection from './ConfigSections/BarSection'
 import RadarSection from './ConfigSections/RadarSection'
 import {
-  encodeMetricName,
+  checkChartEnable,
   decodeMetricName,
+  encodeMetricName,
   getPivot,
-  getTable,
   getPivotModeSelectedCharts,
-  checkChartEnable
+  getTable
 } from '../util'
-import { PIVOT_DEFAULT_SCATTER_SIZE_TIMES } from 'app/globalConstants'
+import {PIVOT_DEFAULT_SCATTER_SIZE_TIMES} from 'app/globalConstants'
 import PivotTypes from '../../config/pivot/PivotTypes'
 
-import { RadioChangeEvent } from 'antd/lib/radio'
+import {RadioChangeEvent} from 'antd/lib/radio'
 import {
-  Row,
-  Col,
-  Icon,
-  Menu,
-  Radio,
-  InputNumber,
-  Dropdown,
-  Modal,
-  Popconfirm,
   Checkbox,
+  Col,
+  Dropdown,
+  Icon,
+  InputNumber,
+  Menu,
+  Modal,
   notification,
-  Tooltip,
+  Popconfirm,
+  Radio,
+  Row,
   Select,
-  message
+  Tooltip
 } from 'antd'
-import {
-  IDistinctValueReqeustParams,
-  IControl
-} from 'app/components/Control/types'
-import { IReference } from './Reference/types'
-import { REFERENCE_SUPPORTED_CHART_TYPES } from './Reference/constants'
-import { WorkbenchQueryMode } from './types'
-import { CheckboxChangeEvent } from 'antd/lib/checkbox'
-import { filterSelectOption } from 'app/utils/util'
-import {
-  ControlPanelTypes,
-  ControlQueryMode
-} from 'app/components/Control/constants'
+import {IControl, IDistinctValueReqeustParams} from 'app/components/Control/types'
+import {IReference} from './Reference/types'
+import {REFERENCE_SUPPORTED_CHART_TYPES} from './Reference/constants'
+import {WorkbenchQueryMode} from './types'
+import {CheckboxChangeEvent} from 'antd/lib/checkbox'
+import {filterSelectOption} from 'app/utils/util'
+import {ControlPanelTypes, ControlQueryMode} from 'app/components/Control/constants'
+import {ICustomPlugin} from 'containers/Widget/types'
+
 const MenuItem = Menu.Item
 const RadioButton = Radio.Button
 const RadioGroup = Radio.Group
@@ -168,6 +155,7 @@ interface IOperatingPanelProps {
     viewIds: number[],
     resolve?: (views: IView[]) => void
   ) => void
+  customPluginModulesConfig?: ICustomPlugin['modules']
 }
 
 interface IOperatingPanelStates {
@@ -275,7 +263,9 @@ export class OperatingPanel extends React.Component<
   }
 
   public componentWillReceiveProps(nextProps: IOperatingPanelProps) {
-    const { formedViews, selectedViewId, originalWidgetProps } = nextProps
+    const { formedViews, selectedViewId, originalWidgetProps, customPluginModulesConfig } = nextProps
+    const chartConfigs = customPluginModulesConfig ? Object.entries(customPluginModulesConfig).map(([key, value]) => ({ ...value?.config?.chartInfo })) : []
+
     if (selectedViewId && selectedViewId !== this.props.selectedViewId) {
       const selectedView = formedViews[selectedViewId]
       const model = selectedView.model
@@ -330,7 +320,7 @@ export class OperatingPanel extends React.Component<
       } = originalWidgetProps
       const { dataParams } = this.state
       const model = selectedView.model
-      const currentWidgetlibs = widgetlibs[mode || 'pivot'] // FIXME 兼容 0.3.0-beta.1 之前版本
+      const currentWidgetlibs = widgetlibs[mode || 'pivot'].concat(chartConfigs) // FIXME 兼容 0.3.0-beta.1 之前版本
       if (mode === 'pivot') {
         model['指标名称'] = {
           sqlType: 'VARCHAR',
@@ -426,13 +416,17 @@ export class OperatingPanel extends React.Component<
         ...(xAxis && { xAxis }),
         ...(tip && { tip })
       }
+
+      if (customPluginModulesConfig && this.props.customPluginModulesConfig == null) {
+        this.setState((preState, props) => ({ currentWidgetlibs: preState.currentWidgetlibs.concat(chartConfigs) }))
+      }
       this.setState(
         {
           mode: mode || 'pivot', // FIXME 兼容 0.3.0-beta.1 之前版本
           currentWidgetlibs,
           ...(selectedChart && {
             chartModeSelectedChart: widgetlibs['chart'].find(
-              (wl) => wl.id === selectedChart
+              (wl) => typeof selectedChart === 'number' ? wl.id === selectedChart : wl.name === selectedChart
             )
           }),
           dataParams: mergedDataParams,
@@ -1333,7 +1327,8 @@ export class OperatingPanel extends React.Component<
             selectedChart:
               mode === 'pivot'
                 ? chartModeSelectedChart.id
-                : selectedCharts[0].id,
+                : selectedCharts[0].id < CUSTOM_ID_LOWEST_LIMIT ?
+                selectedCharts[0].id : selectedCharts[0].name,
             data,
             pagination: updatedPagination,
             dimetionAxis: this.getDimetionAxis(selectedCharts),
@@ -1412,7 +1407,8 @@ export class OperatingPanel extends React.Component<
         ...(yAxis && { yAxis }),
         chartStyles: mergedStyleParams,
         selectedChart:
-          mode === 'pivot' ? chartModeSelectedChart.id : selectedCharts[0].id,
+          mode === 'pivot' ? chartModeSelectedChart.id : selectedCharts[0].id < CUSTOM_ID_LOWEST_LIMIT ?
+            selectedCharts[0].id : selectedCharts[0].name,
         pagination: updatedPagination,
         dimetionAxis: this.getDimetionAxis(selectedCharts),
         renderType: renderType || 'clear',
@@ -1507,6 +1503,8 @@ export class OperatingPanel extends React.Component<
     const hasItems = Object.values(dataParams).filter(
       (param) => !!param.items.length
     )
+    const { customPluginModulesConfig } = this.props
+    const chartConfigs = customPluginModulesConfig ? Object.entries(customPluginModulesConfig).map(([key, value]) => value?.config?.chartInfo) : []
     if (hasItems.length) {
       confirm({
         title: '切换图表模式会清空所有配置项，是否继续？',
@@ -1514,7 +1512,7 @@ export class OperatingPanel extends React.Component<
           this.setState(
             {
               mode,
-              currentWidgetlibs: widgetlibs[mode]
+              currentWidgetlibs: widgetlibs[mode].concat(chartConfigs)
             },
             () => {
               this.resetWorkbench(mode)
@@ -1526,7 +1524,7 @@ export class OperatingPanel extends React.Component<
       this.setState(
         {
           mode,
-          currentWidgetlibs: widgetlibs[mode]
+          currentWidgetlibs: widgetlibs[mode].concat(chartConfigs)
         },
         () => {
           this.resetWorkbench(mode)
@@ -1971,6 +1969,7 @@ export class OperatingPanel extends React.Component<
       </Menu>
     )
 
+    console.log('OperatingPanel -> render -> chartModeSelectedChart', chartModeSelectedChart)
     const dropboxes = Object.entries(dataParams).map(([k, v]) => {
       if (k === 'rows' && !showColsAndRows) {
         return

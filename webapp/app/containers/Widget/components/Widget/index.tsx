@@ -32,6 +32,8 @@ import { IQueryVariableMap } from 'containers/Dashboard/types'
 import { IControl } from 'app/components/Control/types'
 import { RichTextNode } from 'app/components/RichText'
 import { IReference } from '../Workbench/Reference/types'
+import { ICustomModule} from 'containers/Widget/types'
+import { IWorkbenchProps } from '../Workbench/index'
 import { ControlQueryMode } from 'app/components/Control/constants'
 const styles = require('../Pivot/Pivot.less')
 
@@ -166,6 +168,8 @@ export interface IWidgetProps extends IWidgetConfigBase {
   onSelectChartsItems?: (selectedItems: number[]) => void
   // onHideDrillPanel?: (swtich: boolean) => void
   onError?: (error: Error) => void
+  customModuleSelected?: ICustomModule
+  onEditCustomPlugin?: IWorkbenchProps['onEditCustomPlugin']
 }
 
 export interface IWidgetConfig extends IWidgetConfigBase {

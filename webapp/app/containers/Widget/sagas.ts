@@ -23,11 +23,11 @@ import { ActionTypes } from './constants'
 import omit from 'lodash/omit'
 
 import { WidgetActions, WidgetActionType } from './actions'
-import { IWidgetRaw, IWidgetFormed } from './types'
+import { IWidgetRaw, IWidgetFormed, ICustomPlugin } from './types'
 
 import request from 'utils/request'
 import api from 'utils/api'
-import { errorHandler } from 'utils/util'
+import { errorHandler, loadScript } from 'utils/util'
 import { widgetConfigMigrationRecorder } from 'app/utils/migrationRecorders'
 
 export function* getWidgets(action: WidgetActionType) {
@@ -187,6 +187,28 @@ export function* executeComputed(action: WidgetActionType) {
   }
 }
 
+export function* loadCustomPlugin(action: WidgetActionType) {
+  if (action.type !== ActionTypes.LOAD_CUSTOM_PLUGIN) {
+    return
+  }
+  try {
+    const prePath = process.env.NODE_ENV === 'development' ? '/mock' : '/resource'
+    const result = yield call(request, `${prePath}/plugin.js`)
+    // tslint:disable-next-line:no-eval
+    const customPlugin: ICustomPlugin = eval(`(${result})`)()
+    yield call(async() => {
+      if (!customPlugin.isLoaded) {
+        const loadDeps = customPlugin.commonDeps.map((url) => loadScript(url))
+        await Promise.all(loadDeps)
+        customPlugin.isLoaded = true
+      }
+    })
+    yield put(WidgetActions.loadCustomPluginSuccess(customPlugin))
+  } catch (err) {
+    errorHandler(err)
+  }
+}
+
 export default function* rootWidgetSaga() {
   yield all([
     takeLatest(ActionTypes.LOAD_WIDGETS, getWidgets),
@@ -195,6 +217,8 @@ export default function* rootWidgetSaga() {
     takeLatest(ActionTypes.LOAD_WIDGET_DETAIL, getWidgetDetail),
     takeEvery(ActionTypes.EDIT_WIDGET, editWidget),
     takeEvery(ActionTypes.COPY_WIDGET, copyWidget),
-    takeEvery(ActionTypes.EXECUTE_COMPUTED_SQL, executeComputed)
+    takeEvery(ActionTypes.EXECUTE_COMPUTED_SQL, executeComputed),
+    takeEvery(ActionTypes.EXECUTE_COMPUTED_SQL, executeComputed),
+    takeLatest(ActionTypes.LOAD_CUSTOM_PLUGIN, loadCustomPlugin)
   ])
 }

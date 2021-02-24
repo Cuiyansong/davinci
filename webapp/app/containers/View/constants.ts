@@ -164,3 +164,4 @@ export const ViewModelVisualTypesLocale = {
 export const DEFAULT_SQL_LIMIT = 500
 export const DEFAULT_SQL_PREVIEW_PAGE_SIZE = 100
 export const SQL_PREVIEW_PAGE_SIZE_OPTIONS = [100, 200, 500, 1000]
+export const CUSTOM_ID_LOWEST_LIMIT = 100

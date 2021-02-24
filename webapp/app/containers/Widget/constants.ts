@@ -18,7 +18,7 @@
  * >>
  */
 
-import { createTypes } from 'utils/redux'
+import {createTypes} from 'utils/redux'
 
 enum Types {
   LOAD_WIDGETS = 'davinci/Widget/LOAD_WIDGETS',
@@ -46,8 +46,16 @@ enum Types {
   DELETE_WIDGET_FAILURE = 'davinci/Widget/DELETE_WIDGET_FAILURE',
 
   CLEAR_CURRENT_WIDGET = 'davinci/Widget/CLEAR_CURRENT_WIDGET',
-  EXECUTE_COMPUTED_SQL = 'davinci/Widget/EXECUTE_COMPUTED_SQL'
+  EXECUTE_COMPUTED_SQL = 'davinci/Widget/EXECUTE_COMPUTED_SQL',
+
+  EDIT_CUSTOM_PLUGIN = 'davinci/Widget/EDIT_CUSTOM_PLUGIN',
+  LOAD_CUSTOM_PLUGIN = 'davinci/Widget/LOAD_CUSTOM_PLUGIN',
+  LOAD_CUSTOM_PLUGIN_SUCCESS = 'davinci/Widget/LOAD_CUSTOM_PLUGIN_SUCCESS',
+  LOAD_CUSTOM_PLUGIN_FAILURE = 'davinci/Widget/LOAD_CUSTOM_PLUGIN_FAILURE'
 }
+
+// export const CUSTOM_PLUGIN_PATH = (process.env.NODE_ENV === 'development' ? '/mock' : '/resource') + '/plugin.js'
+export const CUSTOM_PLUGIN_PATH = '/resource' + '/plugin.js'
 
 export const ActionTypes = createTypes(Types)
 

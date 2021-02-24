@@ -43,12 +43,16 @@ module.exports = function addDevMiddlewares(app, webpackConfig) {
   const fsMemory = middleware.fileSystem
 
   app.get('*', (req, res) => {
+    const accept = req.get('Accept');
+    const contentType = accept && accept.split(',')[0];
+
     fsMemory.readFile(
       path.join(compiler.outputPath, 'index.html'),
       (err, file) => {
         if (err) {
           res.sendStatus(404)
         } else {
+          res.set({'Content-Type': contentType});
           res.send(file.toString())
         }
       }

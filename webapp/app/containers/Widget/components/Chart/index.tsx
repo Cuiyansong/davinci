@@ -1,11 +1,12 @@
-import React, { Component } from 'react'
-import { IWidgetProps } from '../Widget'
+import React, {Component} from 'react'
+import {IWidgetProps} from '../Widget'
 import Table from './Table'
 import Scorecard from './Scorecard'
 import Iframe from './Iframe'
 import RichText from './RichText'
 import Chart from './Chart'
 import ChartTypes from '../../config/chart/ChartTypes'
+import Custom from '../../../Custom'
 
 export interface IChartProps extends IWidgetProps {
   width: number
@@ -13,12 +14,12 @@ export interface IChartProps extends IWidgetProps {
 }
 
 export class CombinedChart extends Component<IChartProps, {}> {
-  public shouldComponentUpdate (nextProps: IChartProps) {
+  public shouldComponentUpdate(nextProps: IChartProps) {
     return nextProps.renderType !== 'loading'
   }
 
-  public render () {
-    const { selectedChart } = this.props
+  public render() {
+    const {selectedChart} = this.props
 
     switch (selectedChart) {
       case ChartTypes.Table:
@@ -36,6 +37,10 @@ export class CombinedChart extends Component<IChartProps, {}> {
       case ChartTypes.RichText:
         return (
           <RichText {...this.props} />
+        )
+      case ChartTypes.Custom:
+        return (
+          <Custom {...this.props} />
         )
       default:
         return (

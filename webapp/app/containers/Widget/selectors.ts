@@ -18,9 +18,9 @@
  * >>
  */
 
-import { createSelector } from 'reselect'
-import { IWidgetState } from './types'
-import { initialState } from './reducer'
+import {createSelector} from 'reselect'
+import {IWidgetState} from './types'
+import {initialState} from './reducer'
 
 const selectWidget = (state: { widget: IWidgetState }) => state.widget || initialState
 
@@ -44,10 +44,15 @@ const makeSelectDataLoading = () => createSelector(
   (widgetState) => widgetState.dataLoading
 )
 
+const makeSelectCustomPlugin = () => createSelector(selectWidget,
+  (widgetState) => widgetState.customPlugin
+)
+
 export {
   selectWidget,
   makeSelectWidgets,
   makeSelectCurrentWidget,
   makeSelectLoading,
-  makeSelectDataLoading
+  makeSelectDataLoading,
+  makeSelectCustomPlugin
 }

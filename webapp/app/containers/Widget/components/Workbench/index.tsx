@@ -22,7 +22,8 @@ import { WidgetActions } from 'containers/Widget/actions'
 import {
   makeSelectCurrentWidget,
   makeSelectLoading,
-  makeSelectDataLoading
+  makeSelectDataLoading,
+  makeSelectCustomPlugin
 } from 'containers/Widget/selectors'
 import {
   makeSelectViews,
@@ -51,12 +52,12 @@ import {
 } from 'app/components/Control/types'
 import { IReference } from './Reference/types'
 import { IWorkbenchSettings, WorkbenchQueryMode } from './types'
-import { IWidgetFormed, IWidgetRaw } from '../../types'
+import { IWidgetFormed, IWidgetRaw, ICustomPlugin } from '../../types'
 import { ControlQueryMode } from 'app/components/Control/constants'
 
 const styles = require('./Workbench.less')
 
-interface IWorkbenchProps {
+export interface IWorkbenchProps {
   views: IViewBase[]
   formedViews: IFormedViews
   currentWidget: IWidgetFormed
@@ -85,6 +86,13 @@ interface IWorkbenchProps {
   ) => void
   onClearCurrentWidget: () => void
   onExecuteComputed: (sql: string) => void
+  onLoadCustomPlugin: (cb?: (data: ICustomPlugin) => void) => void
+  /**
+   * @param { string[] } fieldArr - the path key of the customPlugin of object
+   * @param { string } key - the field that you want to change its value
+   * @param { any } value - the value of modified
+   */
+  onEditCustomPlugin: (fieldArr: string[], key: string, value: any) => void
 }
 
 interface IWorkbenchStates {
@@ -180,6 +188,7 @@ export class Workbench extends React.Component<
 
   public componentDidMount() {
     this.props.onHideNavigator()
+    this.getCustomChartInfo()
   }
 
   public componentWillReceiveProps(nextProps: IWorkbenchProps) {
@@ -218,6 +227,10 @@ export class Workbench extends React.Component<
 
   public componentWillUnmount() {
     this.props.onClearCurrentWidget()
+  }
+
+  private getCustomChartInfo = () => {
+    this.props.onLoadCustomPlugin()
   }
 
   private initSettings = (): IWorkbenchSettings => {
@@ -638,7 +651,9 @@ export class Workbench extends React.Component<
       dataLoading,
       onLoadViewData,
       onLoadColumnDistinctValue,
-      onLoadViewDetail
+      onLoadViewDetail,
+      customPlugin,
+      onEditCustomPlugin
     } = this.props
     const {
       name,
@@ -669,6 +684,8 @@ export class Workbench extends React.Component<
       empty: !data.length,
       hasDataConfig
     }
+    const customPluginModulesConfig = customPlugin?.modules
+    const customModuleSelected = typeof selectedChart === 'string' && customPluginModulesConfig?.[selectedChart]
 
     return (
       <div className={styles.workbench}>
@@ -687,6 +704,7 @@ export class Workbench extends React.Component<
         />
         <div className={styles.body}>
           <Suspense fallback={null}>
+            customPlugin?.isLoaded &&
             <SplitPane
               split="vertical"
               defaultSize={splitSize}
@@ -726,6 +744,7 @@ export class Workbench extends React.Component<
                 onLoadColumnDistinctValue={onLoadColumnDistinctValue}
                 onLoadViews={this.loadViews}
                 onLoadViewDetail={onLoadViewDetail}
+                customPluginModulesConfig={customPluginModulesConfig}
               />
               <div className={styles.viewPanel}>
                 <div className={styles.widgetBlock}>
@@ -736,6 +755,8 @@ export class Workbench extends React.Component<
                     editing={true}
                     onPaginationChange={this.paginationChange}
                     onChartStylesChange={this.chartStylesChange}
+                    customModuleSelected={customModuleSelected}
+                    onEditCustomPlugin={onEditCustomPlugin}
                   />
                 </div>
               </div>
@@ -758,7 +779,8 @@ const mapStateToProps = createStructuredSelector({
   formedViews: makeSelectFormedViews(),
   currentWidget: makeSelectCurrentWidget(),
   loading: makeSelectLoading(),
-  dataLoading: makeSelectDataLoading()
+  dataLoading: makeSelectDataLoading(),
+  customPlugin: makeSelectCustomPlugin()
 })
 
 export function mapDispatchToProps(dispatch) {
@@ -782,7 +804,8 @@ export function mapDispatchToProps(dispatch) {
       callback: (options?: object[]) => void
     ) => dispatch(loadColumnDistinctValue(paramsByViewId, callback)),
     onClearCurrentWidget: () => dispatch(WidgetActions.clearCurrentWidget()),
-    onExecuteComputed: (sql) => dispatch(WidgetActions.executeComputed(sql))
+    onExecuteComputed: (sql) => dispatch(WidgetActions.executeComputed(sql)),
+    onEditCustomPlugin: (fieldArr, key, value) => dispatch(WidgetActions.editCustomPlugin(fieldArr, key, value))
   }
 }
 
