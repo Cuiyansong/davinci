@@ -52,14 +52,14 @@ function render(hooks, id) {
   hooks.on('mount', (data, style) => {
     console.log('chart1 - mount')
     const option = formatData(data)
-    iChart.setOption(option)
+    iChart.setOption(Object.assign({}, style, option))
     window.addEventListener('resize', resizeHandler)
   })
 
-  hooks.on('update', (newData, newStyle) => {
+  hooks.on('update', (newData, style) => {
     console.log('chart1 - update')
     const option = formatData(newData)
-    iChart.setOption(option)
+    iChart.setOption(Object.assign({}, style, option))
   })
 
   hooks.on('unmount', () => {
