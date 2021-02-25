@@ -14,7 +14,7 @@ function f() {
             rules: [
               {
                 dimension: 1,
-                metric: [1, 9999]
+                metric: [2, 2]
               }
             ],
             dimetionAxis: 'col',
@@ -111,7 +111,7 @@ function f() {
           dimetionsCount: 1,
           metricsCount: 1
         },
-        render: '/mock/chart/chart1.js'
+        render: '3rd/mocks/chart1.render.js' // Demo for dynamic load render function
       },
       chart2: {
         deps: [],
