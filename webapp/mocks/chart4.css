@@ -1,0 +1,12 @@
+.chart4-table {
+  border: 1px solid #ddd;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+.chart4-table th {
+  height: 50px;
+}
+.chart4-table tr {
+  border: 1px solid #ddd;
+}

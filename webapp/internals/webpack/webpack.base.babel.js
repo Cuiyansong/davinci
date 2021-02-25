@@ -128,8 +128,8 @@ module.exports = options => ({
       });
     }),
     new CopyWebpackPlugin([
-      {from: 'mocks/*.js', to: '3rd/'},
-      {from: 'plugins/*.plugins.js', to: '3rd/'}
+      {from: 'mocks/**', to: '3rd/'},
+      {from: 'plugins/**', to: '3rd/'}
     ]),
     new HappyPack({
       id: 'typescript',

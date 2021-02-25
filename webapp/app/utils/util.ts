@@ -218,12 +218,13 @@ export const loadResource = (url: string) => {
 
 export const loadStyle = (url: string) => {
   return new Promise((resolve, reject) => {
-    const link = document.createElement('link');
+    const link = document.createElement('link')
     link.rel = 'stylesheet'
     link.href = url
     link.type = 'text/css'
     link.onload = resolve
     link.onerror = reject
+    console.log('link ---> ', link)
     document.head.appendChild(link)
   })
 }
