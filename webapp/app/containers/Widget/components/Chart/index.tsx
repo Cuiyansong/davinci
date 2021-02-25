@@ -20,6 +20,11 @@ export class CombinedChart extends Component<IChartProps, {}> {
 
   public render() {
     const {selectedChart} = this.props
+    if (isNaN(+selectedChart)) {
+      return (
+        <Custom {...this.props} />
+      )
+    }
 
     switch (selectedChart) {
       case ChartTypes.Table:
@@ -37,10 +42,6 @@ export class CombinedChart extends Component<IChartProps, {}> {
       case ChartTypes.RichText:
         return (
           <RichText {...this.props} />
-        )
-      case ChartTypes.Custom:
-        return (
-          <Custom {...this.props} />
         )
       default:
         return (

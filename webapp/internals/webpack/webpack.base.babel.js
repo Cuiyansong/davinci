@@ -8,6 +8,7 @@ const webpack = require('webpack')
 const HappyPack = require('happypack')
 const happyThreadPool = HappyPack.ThreadPool({ size: os.cpus().length })
 const overrideLessVariables = require('../../app/assets/override/lessVariables')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 // Remove this line once the following warning goes away (it was meant for webpack loader authors not users):
 // 'DeprecationWarning: loaderUtils.parseQuery() received a non-string value which can be problematic,
@@ -117,13 +118,19 @@ module.exports = options => ({
       }
     }),
     new webpack.ContextReplacementPlugin(/^\.\/locale$/, (context) => {
-      if (!/\/moment\//.test(context.context)) return;
+      if (!/\/moment\//.test(context.context)) {
+        return;
+      }
 
       Object.assign(context, {
-          regExp: /^\.\/\w+/,
-          request: '../../locale', // resolved relatively
+        regExp: /^\.\/\w+/,
+        request: '../../locale', // resolved relatively
       });
     }),
+    new CopyWebpackPlugin([
+      {from: 'mocks/*.js', to: '3rd/'},
+      {from: 'plugins/*.plugins.js', to: '3rd/'}
+    ]),
     new HappyPack({
       id: 'typescript',
       loaders: options.tsLoaders,

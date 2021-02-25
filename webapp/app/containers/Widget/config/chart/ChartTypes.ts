@@ -97,7 +97,7 @@ export enum ChartTypes {
   /**
    * 定制
    */
-  Custom = 18
+  Custom = 999 // Customize type use a string as customize component name
 }
 
 export default ChartTypes

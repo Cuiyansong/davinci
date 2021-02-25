@@ -96,6 +96,7 @@ const CustomContainer: React.FC<IWidgetWrapperProps> = (props) => {
   useEffect(() => {
     const {data} = props
     try {
+      console.log('enter ---> data changed ', data)
       hooks.events?.update?.(data, chartStyles)
     } catch (error) {
       console.error('plugin update: ' + error)

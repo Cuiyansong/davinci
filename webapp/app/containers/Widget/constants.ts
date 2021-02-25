@@ -55,7 +55,7 @@ enum Types {
 }
 
 // export const CUSTOM_PLUGIN_PATH = (process.env.NODE_ENV === 'development' ? '/mock' : '/resource') + '/plugin.js'
-export const CUSTOM_PLUGIN_PATH = '/resource' + '/plugin.js'
+export const CUSTOM_PLUGIN_PATH = '3rd/plugins/demo.plugins.js'
 
 export const ActionTypes = createTypes(Types)
 

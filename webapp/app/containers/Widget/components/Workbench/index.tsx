@@ -687,6 +687,8 @@ export class Workbench extends React.Component<
     const customPluginModulesConfig = customPlugin?.modules
     const customModuleSelected = typeof selectedChart === 'string' && customPluginModulesConfig?.[selectedChart]
 
+    console.log("selectedChart ---> ", selectedChart)
+
     return (
       <div className={styles.workbench}>
         <EditorHeader
@@ -805,6 +807,7 @@ export function mapDispatchToProps(dispatch) {
     ) => dispatch(loadColumnDistinctValue(paramsByViewId, callback)),
     onClearCurrentWidget: () => dispatch(WidgetActions.clearCurrentWidget()),
     onExecuteComputed: (sql) => dispatch(WidgetActions.executeComputed(sql)),
+    onLoadCustomPlugin: (cb?) => dispatch(WidgetActions.loadCustomPlugin(cb)),
     onEditCustomPlugin: (fieldArr, key, value) => dispatch(WidgetActions.editCustomPlugin(fieldArr, key, value))
   }
 }

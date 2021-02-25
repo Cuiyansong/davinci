@@ -19,7 +19,7 @@
  */
 
 import { call, put, all, takeLatest, takeEvery } from 'redux-saga/effects'
-import { ActionTypes } from './constants'
+import {ActionTypes, CUSTOM_PLUGIN_PATH} from './constants'
 import omit from 'lodash/omit'
 
 import { WidgetActions, WidgetActionType } from './actions'
@@ -192,8 +192,9 @@ export function* loadCustomPlugin(action: WidgetActionType) {
     return
   }
   try {
-    const prePath = process.env.NODE_ENV === 'development' ? '/mock' : '/resource'
-    const result = yield call(request, `${prePath}/plugin.js`)
+    const result = yield call(request, CUSTOM_PLUGIN_PATH, {
+      headers: { Accept: 'application/javascript' }
+    })
     // tslint:disable-next-line:no-eval
     const customPlugin: ICustomPlugin = eval(`(${result})`)()
     yield call(async() => {
