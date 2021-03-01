@@ -205,34 +205,35 @@ export function filterTreeSelectOption(
   return text.toLowerCase().includes(input.toLowerCase())
 }
 
-export const loadResource = (url: string) => {
+export const loadResource = (url: string, iframeDocument?: Document) => {
   return new Promise((resolve, reject) => {
-    const script = document.createElement('script')
+    const curDoc = (iframeDocument || document)
+    const script = curDoc.createElement('script')
     script.src = url
     script.async = true
     script.onload = resolve
     script.onerror = reject
-    document.body.appendChild(script)
+    curDoc.body.appendChild(script)
   })
 }
 
-export const loadStyle = (url: string) => {
+export const loadStyle = (url: string, iframeDocument?: Document) => {
   return new Promise((resolve, reject) => {
-    const link = document.createElement('link')
+    const curDoc = (iframeDocument || document)
+    const link = curDoc.createElement('link')
     link.rel = 'stylesheet'
     link.href = url
     link.type = 'text/css'
     link.onload = resolve
     link.onerror = reject
-    console.log('link ---> ', link)
-    document.head.appendChild(link)
+    curDoc.head.appendChild(link)
   })
 }
 
-export const loadScript = (url: string) => {
+export const loadScript = (url: string, iframeDocument?: Document) => {
   if (url.endsWith('.js')) {
-    loadResource(url)
+    return loadResource(url, iframeDocument)
   } else if (url.endsWith('.css')) {
-    loadStyle(url)
+    return loadStyle(url, iframeDocument)
   }
 }

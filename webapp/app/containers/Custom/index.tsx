@@ -70,7 +70,8 @@ const CustomContainer: React.FC<IWidgetWrapperProps> = (props) => {
 
       try {
         if (!customModuleSelected.isLoaded) {
-          const loadDeps = customModuleSelected.deps.map((url) => loadScript(url))
+          const iframeDocument = (document.getElementById('custom-iframe') as HTMLIFrameElement).contentWindow?.document
+          const loadDeps = customModuleSelected.deps.map((url) => loadScript(url, iframeDocument))
           await Promise.all(loadDeps)
           onEditCustomPlugin(['modules', customModuleSelected.config.chartInfo.name], 'isLoaded', true)
         }

@@ -114,7 +114,7 @@ function f() {
         render: '3rd/mocks/chart1.render.js' // Demo for dynamic load render function
       },
       chart2: {
-        deps: [],
+        deps: ['https://cdn.bootcdn.net/ajax/libs/echarts/5.0.1/echarts.min.js', '3rd/mocks/chart4.css'],
         config: {
           chartInfo: {
             id: 101,
