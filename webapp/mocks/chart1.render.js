@@ -1,5 +1,5 @@
-function render(hooks, id) {
-  const iChart = echarts.init(document.getElementById(id))
+function render(hooks, id, host) {
+  const iChart = echarts.init(host ? host: document.getElementById(id))
 
   // feat: Support auto resize
   const resizeHandler = () => {

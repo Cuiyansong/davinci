@@ -222,8 +222,8 @@ function f() {
           dimetionsCount: 1,
           metricsCount: 1
         },
-        render: (hooks, id) => {
-          const iChart = echarts.init(document.getElementById(id))
+        render: (hooks, id, host) => {
+          const iChart = echarts.init(host ? host: document.getElementById(id))
 
           // TODO: transform data for demo by x-axis and y-axis
           const transform = (data) => {
@@ -395,14 +395,14 @@ function f() {
           dimetionsCount: 1,
           metricsCount: 1
         },
-        render: (hooks, id) => {
+        render: (hooks, id, host) => {
           var margin = {top: 10, right: 40, bottom: 30, left: 30},
             width = 450 - margin.left - margin.right,
             height = 400 - margin.top - margin.bottom
 
           // append the svg object to the body of the page
           var svG = d3
-          .select('#' + id)
+          .select(host)
           .append('svg')
           .attr('width', width + margin.left + margin.right)
           .attr('height', height + margin.top + margin.bottom)
@@ -569,7 +569,7 @@ function f() {
           dimetionsCount: 1,
           metricsCount: 1
         },
-        render: (hooks, id) => {
+        render: (hooks, id, host) => {
           const tdData = [1, 2, 3, 4, 5]
           const trNum = 5
           let trs = ''
@@ -591,7 +591,7 @@ function f() {
             </table>
           `
           hooks.on('mount', (data, style) => {
-            const container = document.getElementById(id)
+            const container = echarts.init(host ? host: document.getElementById(id))
             container.innerHTML = temp
           })
           hooks.on('update', (newData, newStyle) => {

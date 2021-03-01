@@ -1,5 +1,5 @@
-import React, {useEffect} from 'react'
-import {IWidgetWrapperProps, IChartStyles} from '../Widget/components/Widget'
+import React, {useEffect, useState} from 'react'
+import {IChartStyles, IWidgetWrapperProps} from '../Widget/components/Widget'
 import {loadScript} from 'app/utils/util'
 import request from 'app/utils/request'
 
@@ -14,11 +14,12 @@ interface IHooksEventCallbacks {
   unmount: THooksUnmount
 }
 
-type TPluginRenderFunc = (hook: CustomPluginHooks, id: string) => any
+type TPluginRenderFunc = (hook: CustomPluginHooks, id: string, host?: any) => any
 
 const style = {
   width: '100%',
-  height: '100%'
+  height: '100%',
+  border: 'none'
 }
 
 export class CustomPluginHooks {
@@ -59,9 +60,14 @@ const CUSTOM_PLUGIN_CONTAINER_ID = '_customPluginContainer'
 const CustomContainer: React.FC<IWidgetWrapperProps> = (props) => {
 
   const {customModuleSelected, data, onEditCustomPlugin, chartStyles} = props
+  const [iframeDocument, setIframeDocument] = useState(null)
 
   useEffect(() => {
     (async() => {
+      if (!iframeDocument) {
+        return
+      }
+
       try {
         if (!customModuleSelected.isLoaded) {
           const loadDeps = customModuleSelected.deps.map((url) => loadScript(url))
@@ -73,7 +79,8 @@ const CustomContainer: React.FC<IWidgetWrapperProps> = (props) => {
           renderFunc = await loadRenderFunc(renderFunc)
           onEditCustomPlugin(['modules', customModuleSelected.config.chartInfo.name], 'render', renderFunc)
         }
-        renderFunc(hooks, CUSTOM_PLUGIN_CONTAINER_ID)
+
+        renderFunc(hooks, CUSTOM_PLUGIN_CONTAINER_ID, iframeDocument)
       } catch (error) {
         console.error('plugin render: ' + error)
       }
@@ -91,7 +98,7 @@ const CustomContainer: React.FC<IWidgetWrapperProps> = (props) => {
         console.error('plugin unmount: ' + error)
       }
     }
-  }, [])
+  }, [iframeDocument])
 
   useEffect(() => {
     const {data} = props
@@ -103,7 +110,12 @@ const CustomContainer: React.FC<IWidgetWrapperProps> = (props) => {
     }
   }, [data])
 
-  return <div style={style} id={CUSTOM_PLUGIN_CONTAINER_ID}/>
+  const onLoaded = () => {
+    const host = (document.getElementById('custom-iframe') as HTMLIFrameElement).contentWindow?.document?.getElementById(CUSTOM_PLUGIN_CONTAINER_ID)
+    setIframeDocument(host)
+  }
+
+  return <iframe id="custom-iframe" src="3rd/plugins/iframe-container.html" style={style} allowFullScreen onLoad={onLoaded}/>
 }
 
 const loadRenderFunc = (url: string) => {
