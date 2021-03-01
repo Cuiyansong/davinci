@@ -111,10 +111,10 @@ function f() {
           dimetionsCount: 1,
           metricsCount: 1
         },
-        render: '3rd/mocks/chart1.render.js' // Demo for dynamic load render function
+        render: '3rd/plugins/chart1.render.js' // Demo for dynamic load render function
       },
       chart2: {
-        deps: ['https://cdn.bootcdn.net/ajax/libs/echarts/5.0.1/echarts.min.js', '3rd/mocks/chart4.css'],
+        deps: ['https://cdn.bootcdn.net/ajax/libs/echarts/5.0.1/echarts.min.js', 'chart2.css'],
         config: {
           chartInfo: {
             id: 101,
@@ -461,7 +461,7 @@ function f() {
         }
       },
       chart4: {
-        deps: ['3rd/mocks/chart4.css'],
+        deps: ['chart4.css'],
         config: {
           chartInfo: {
             id: 104,
